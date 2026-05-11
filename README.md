@@ -65,7 +65,7 @@ A cloud-native, microservices-based voting application deployed on Amazon EKS, w
 | Service | Language | Role | Internal Port |
 |---------|----------|------|---------------|
 | vote | Python (Flask) | Frontend — cast your vote | 80 |
-| result | Node.js + Socket.io | Frontend — live results | 80 |
+| result | Node.js | Frontend — live results | 80 |
 | worker | .NET | Reads Redis, writes to Postgres | — |
 | redis | Redis | Vote queue (in-memory) | 6379 |
 | db | PostgreSQL | Persistent vote storage | 5432 |
