@@ -8,10 +8,10 @@ A cloud-native, microservices-based voting application deployed on Amazon EKS, w
 
 ```
                           ┌─────────────────────────────────────────────────┐
-                          │                  AWS Cloud                      │
-                          │                                                 │
+                          │                  AWS Cloud                       │
+                          │                                                  │
    Browser ──────────────▶│  Route 53 DNS                                   │
-                          │  vote.joao.and.irene.ironlabs.online            │
+                          │  vote.joao.and.irene.ironlabs.online             │
                           │  result.joao.and.irene.ironlabs.online           │
                           │         │                                        │
                           │         ▼                                        │
@@ -23,36 +23,36 @@ A cloud-native, microservices-based voting application deployed on Amazon EKS, w
                           │  │           Amazon EKS Cluster             │   │
                           │  │           eks-cluster-irene-and-joao     │   │
                           │  │                                          │   │
-                          │  │  ┌──────────────────────────────────── │   │
-                          │  │  │     ingress-nginx (Namespace)      ││   │
-                          │  │  │   NGINX Ingress Controller Pod     ││   │
-                          │  │  └──────────────┬───────────────────── │   │
-                          │  │                 │                      │   │
-                          │  │    ┌────────────┴────────────┐         │   │
-                          │  │    │                         │         │   │
-                          │  │    ▼                         ▼         │   │
+                          │  │  ┌────────────────────────────────────┐ │   │
+                          │  │  │     ingress-nginx (Namespace)      │ │   │
+                          │  │  │   NGINX Ingress Controller Pod     │ │   │
+                          │  │  └──────────────┬─────────────────────┘ │   │
+                          │  │                 │                        │   │
+                          │  │    ┌────────────┴────────────┐          │   │
+                          │  │    │                         │          │   │
+                          │  │    ▼                         ▼          │   │
                           │  │ ┌──────────┐         ┌─────────────┐   │   │
                           │  │ │   vote   │         │   result    │   │   │
-                          │  │ │  (Flask) │         │  (Node.js)  │   │   │
-                          │  │ │  :80     │         │   :80       │   │   │
+                          │  │ │  (Flask) │         │  (Node.js + │   │   │
+                          │  │ │  :80     │         │  Socket.io) │   │   │
                           │  │ └────┬─────┘         └──────┬──────┘   │   │
-                          │  │      │                      │          │   │
-                          │  │      ▼                      ▼          │   │
+                          │  │      │                       │          │   │
+                          │  │      ▼                       ▼          │   │
                           │  │ ┌──────────┐         ┌─────────────┐   │   │
                           │  │ │  Redis   │         │  Postgres   │   │   │
                           │  │ │  :6379   │         │   :5432     │   │   │
                           │  │ └────┬─────┘         └──────┬──────┘   │   │
-                          │  │      │                      ▲          │   │
-                          │  │      ▼                      │          │   │
+                          │  │      │                       ▲          │   │
+                          │  │      ▼                       │          │   │
                           │  │ ┌──────────────────────────────────┐   │   │
                           │  │ │          worker (.NET)           │   │   │
                           │  │ │  reads Redis → writes Postgres   │   │   │
                           │  │ └──────────────────────────────────┘   │   │
-                          │  └────────────────────────────────────────┘   │
-                          └───────────────────────────────────────────────┘
+                          │  └──────────────────────────────────────── ┘   │
+                          └─────────────────────────────────────────────────┘
                                               │
                           ┌───────────────────▼──────────────────────────────┐
-                          │              GitHub Actions CI/CD                │
+                          │              GitHub Actions CI/CD                 │
                           │  push → build images → push to Docker Hub        │
                           │       → kubectl set image → EKS updated          │
                           └──────────────────────────────────────────────────┘
@@ -65,7 +65,7 @@ A cloud-native, microservices-based voting application deployed on Amazon EKS, w
 | Service | Language | Role | Internal Port |
 |---------|----------|------|---------------|
 | vote | Python (Flask) | Frontend — cast your vote | 80 |
-| result | Node.js | Frontend — live results | 80 |
+| result | Node.js + Socket.io | Frontend — live results | 80 |
 | worker | .NET | Reads Redis, writes to Postgres | — |
 | redis | Redis | Vote queue (in-memory) | 6379 |
 | db | PostgreSQL | Persistent vote storage | 5432 |
@@ -169,6 +169,8 @@ Traffic is routed by hostname:
 | `result.joao.and.irene.ironlabs.online` | result-service:80 |
 
 The Ingress resource lives in `k8s/ingress/ingress.yaml`.
+
+> **Note:** The result service uses Socket.io (WebSockets) for live vote updates. The Ingress includes WebSocket timeout annotations to handle persistent connections.
 
 ---
 
@@ -308,7 +310,7 @@ The pipeline triggers on every push to `main`:
 Once deployed, cast a vote and watch it flow through the system:
 
 ```
-vote app → Redis → worker → Postgres → result app 
+vote app → Redis → worker → Postgres → result app (live via WebSocket)
 ```
 
 Access:
