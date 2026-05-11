@@ -87,7 +87,7 @@ A cloud-native, microservices-based voting application deployed on **Amazon EKS*
 ### 1. Configure environment variables
 
 ```bash
-export STUDENT_NAME=yourname          # lowercase, no spaces
+export NAME=yourname          # lowercase, no spaces
 export CLUSTER_NAME=$(aws eks list-clusters \
   --query "clusters[?contains(@, '${STUDENT_NAME}')] | [0]" \
   --output text)
