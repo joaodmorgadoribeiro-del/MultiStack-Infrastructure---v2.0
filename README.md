@@ -8,10 +8,10 @@ A cloud-native, microservices-based voting application deployed on Amazon EKS, w
 
 ```
                           ┌─────────────────────────────────────────────────┐
-                          │                  AWS Cloud                       │
-                          │                                                  │
+                          │                  AWS Cloud                      │
+                          │                                                 │
    Browser ──────────────▶│  Route 53 DNS                                   │
-                          │  vote.joao.and.irene.ironlabs.online             │
+                          │  vote.joao.and.irene.ironlabs.online            │
                           │  result.joao.and.irene.ironlabs.online           │
                           │         │                                        │
                           │         ▼                                        │
@@ -23,36 +23,36 @@ A cloud-native, microservices-based voting application deployed on Amazon EKS, w
                           │  │           Amazon EKS Cluster             │   │
                           │  │           eks-cluster-irene-and-joao     │   │
                           │  │                                          │   │
-                          │  │  ┌────────────────────────────────────┐ │   │
-                          │  │  │     ingress-nginx (Namespace)      │ │   │
-                          │  │  │   NGINX Ingress Controller Pod     │ │   │
-                          │  │  └──────────────┬─────────────────────┘ │   │
-                          │  │                 │                        │   │
-                          │  │    ┌────────────┴────────────┐          │   │
-                          │  │    │                         │          │   │
-                          │  │    ▼                         ▼          │   │
+                          │  │  ┌──────────────────────────────────── │   │
+                          │  │  │     ingress-nginx (Namespace)      ││   │
+                          │  │  │   NGINX Ingress Controller Pod     ││   │
+                          │  │  └──────────────┬───────────────────── │   │
+                          │  │                 │                      │   │
+                          │  │    ┌────────────┴────────────┐         │   │
+                          │  │    │                         │         │   │
+                          │  │    ▼                         ▼         │   │
                           │  │ ┌──────────┐         ┌─────────────┐   │   │
                           │  │ │   vote   │         │   result    │   │   │
-                          │  │ │  (Flask) │         │  (Node.js + │   │   │
-                          │  │ │  :80     │         │  Socket.io) │   │   │
+                          │  │ │  (Flask) │         │  (Node.js)  │   │   │
+                          │  │ │  :80     │         │   :80       │   │   │
                           │  │ └────┬─────┘         └──────┬──────┘   │   │
-                          │  │      │                       │          │   │
-                          │  │      ▼                       ▼          │   │
+                          │  │      │                      │          │   │
+                          │  │      ▼                      ▼          │   │
                           │  │ ┌──────────┐         ┌─────────────┐   │   │
                           │  │ │  Redis   │         │  Postgres   │   │   │
                           │  │ │  :6379   │         │   :5432     │   │   │
                           │  │ └────┬─────┘         └──────┬──────┘   │   │
-                          │  │      │                       ▲          │   │
-                          │  │      ▼                       │          │   │
+                          │  │      │                      ▲          │   │
+                          │  │      ▼                      │          │   │
                           │  │ ┌──────────────────────────────────┐   │   │
                           │  │ │          worker (.NET)           │   │   │
                           │  │ │  reads Redis → writes Postgres   │   │   │
                           │  │ └──────────────────────────────────┘   │   │
-                          │  └──────────────────────────────────────── ┘   │
-                          └─────────────────────────────────────────────────┘
+                          │  └────────────────────────────────────────┘   │
+                          └───────────────────────────────────────────────┘
                                               │
                           ┌───────────────────▼──────────────────────────────┐
-                          │              GitHub Actions CI/CD                 │
+                          │              GitHub Actions CI/CD                │
                           │  push → build images → push to Docker Hub        │
                           │       → kubectl set image → EKS updated          │
                           └──────────────────────────────────────────────────┘
