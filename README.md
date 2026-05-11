@@ -170,8 +170,6 @@ Traffic is routed by hostname:
 
 The Ingress resource lives in `k8s/ingress/ingress.yaml`.
 
-> **Note:** The result service uses Socket.io (WebSockets) for live vote updates. The Ingress includes WebSocket timeout annotations to handle persistent connections.
-
 ---
 
 ## 🔒 HTTPS with cert-manager
@@ -310,7 +308,7 @@ The pipeline triggers on every push to `main`:
 Once deployed, cast a vote and watch it flow through the system:
 
 ```
-vote app → Redis → worker → Postgres → result app (live via WebSocket)
+vote app → Redis → worker → Postgres → result app 
 ```
 
 Access:
